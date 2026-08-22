@@ -164,6 +164,19 @@
     </p>
   </div>
 
+  <div class="panel" id="artist" style="margin-top:14px;display:none;border-color:var(--accent)">
+    <div style="font-size:15px;font-weight:700;color:var(--fg);margin-bottom:6px" id="artistHead">New best streak.</div>
+    <p class="tip" style="margin:0 0 10px">
+      I'm Steve — I built this because it's the drill I actually use. It's free and always will be.
+      If it's helping, the best thanks is to come hear what I play.
+    </p>
+    <p style="margin:0;font-size:13px;font-weight:600">
+      <a href="https://www.instagram.com/steveheavenstone/" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">Instagram →</a>
+      <span style="opacity:.4;margin:0 8px">·</span>
+      <a href="https://www.youtube.com/@steveheavenstone" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none">YouTube →</a>
+    </p>
+  </div>
+
   <p class="tip" style="text-align:center;margin:16px 0 4px">
     <a href="https://square.link/u/xARGS5Yf" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none;font-weight:600">Support this project</a>
     <span style="opacity:.5;margin:0 6px">·</span>
@@ -214,6 +227,7 @@ var lastRms=0;
 // speaker mode: don't count anything until the room has gone quiet and a fresh
 // attack arrives, so the tail of my own note can't be scored as your answer
 var onsetArmed=false, onsetFloor=false, onsetOk=true;
+var artistShown=false;
 
 // how long each tone stays audible
 var TONE_TAIL={synth:0.47, pluck:0.58, piano:0.52};
@@ -455,7 +469,17 @@ function score(ok,wasRepeat){
   s.calls++;
   if(ok){
     if(!wasRepeat) s.first++;
-    streak++; if(streak>best) best=streak;
+    streak++;
+    if(streak>best){
+      best=streak;
+      // an earned moment, not an interruption: only once, and only past a run
+      // long enough to mean something
+      if(best>=5 && !artistShown){
+        artistShown=true;
+        $("artistHead").textContent="New best streak — "+best+" in a row.";
+        $("artist").style.display="";
+      }
+    }
     if(streak>s.best) s.best=streak;
   } else {
     streak=0;
@@ -546,6 +570,7 @@ $("output").onchange=function(){
 $("start").onclick=start;
 $("stop").onclick=stop;
 $("reset").onclick=function(){
+  artistShown=false; $("artist").style.display="none";
   stats=TIERS.map(function(){return {calls:0,first:0,best:0};});
   streak=0;best=0;render();
 };
