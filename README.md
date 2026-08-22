@@ -18,11 +18,30 @@ Hear every note and chord *relative to the key*. A cadence establishes the tonic
 | **Melody** | Short phrases sung back on degree numbers, then entered in order. |
 | **Stats** | Degree and chord accuracy, plus your top confusion pairs to bias the next session. |
 
-Five difficulty levels, key selection (or random), three instrument voices (piano, organ, strings), auto-next, and a built-in 50-minute session plan.
+Each mode has its own difficulty ladder:
+
+| Level | Degrees | Chords | Progressions | Melody |
+|---|---|---|---|---|
+| L1 | degrees 1·2·3 | I · IV · V | I, IV, V | 3 notes, steps |
+| L2 | degrees 1–5 | + vi & ii | + vi (pop axes) | 4 notes, small leaps |
+| L3 | all 7 degrees | all diatonic triads | + ii & iii, 5 chords | 5 notes, leaps |
+| L4 | chromatic (12 tones) | seventh chords | seventh chords | 6 notes, wide |
+| L5 | — | triads with inversions | inversions in the bass | — |
+
+Plus key selection (or random), three instrument voices (piano, organ, strings), auto-next, and a built-in 50-minute session plan.
 
 ## Ben Monder Call & Response
 
 The app plays a note. You play it back on your instrument within the beat. Right answer, new note. Wrong answer, the same note returns — and the note name stays hidden until you nail it.
+
+Four tiers, each widening the note pool and the range:
+
+| Tier | Notes | Range |
+|---|---|---|
+| 1 | Diatonic (C major) | F below middle C up to C an octave above |
+| 2 | Same, plus b3, b6, b7 | same range |
+| 3 | Adds b2 and b5 (all 12) | C below middle C up to E a tenth above |
+| 4 | All 12 | G (low E string, 3rd fret) up to that same E |
 
 Adjustable tempo, three tones (clean synth, plucked guitar, piano), three mic sensitivity settings, optional metronome click, and an optional exact-octave requirement. Tracks streak, best streak, accuracy, and per-tier first-try rate.
 
