@@ -106,6 +106,12 @@
           <option value="piano">Piano</option>
         </select>
       </div>
+      <div><label>Output</label>
+        <select id="output">
+          <option value="headphones">Headphones</option>
+          <option value="speakers">Speakers</option>
+        </select>
+      </div>
       <div><label>Mic sensitivity</label>
         <select id="sens">
           <option value="0.020">Low</option>
@@ -149,7 +155,9 @@
       <tbody id="stats"></tbody>
     </table>
     <p class="tip" style="margin:14px 0 0">
-      <b>Use headphones</b> so the mic doesn't hear my note and score it as yours.
+      <b>Headphones or speakers both work.</b> On <b>Speakers</b> I shorten my note, wait until it has fully
+      decayed before opening the mic, and ask the browser to cancel my own output — so my note can't be scored
+      as yours. Headphones are still the cleanest option, and the only one that fully removes the risk.
       The note name stays hidden — it's only revealed after you nail it. Miss it and it stays hidden and comes back.
       Detection is pitch-class only by default — a guitar's written C sounds an octave lower, so exact-octave mode is
       off unless you turn it on. Play one clean note per beat and let it ring.
@@ -192,6 +200,19 @@ var stats=TIERS.map(function(){return {calls:0,first:0,best:0};});
 var streak=0, best=0;
 var ctx=null, master=null, analyser=null, micStream=null, buf=null;
 var timers=[], listening=false, votes={}, nextT=0, detTimer=null;
+var lastRms=0;
+// speaker mode: don't count anything until the room has gone quiet and a fresh
+// attack arrives, so the tail of my own note can't be scored as your answer
+var onsetArmed=false, onsetFloor=false, onsetOk=true;
+
+// how long each tone stays audible
+var TONE_TAIL={synth:0.47, pluck:0.58, piano:0.52};
+function isSpeakers(){ return $("output").value==="speakers"; }
+function callTail(beat){
+  var t=TONE_TAIL[$("tone").value]||0.5;
+  // shorten the call through speakers so the air is clear before your beat
+  return isSpeakers() ? Math.min(t, beat*0.45) : t;
+}
 
 var $=function(id){return document.getElementById(id);};
 
@@ -202,17 +223,18 @@ function initCtx(){
   master = ctx.createGain(); master.gain.value=0.85; master.connect(ctx.destination);
 }
 
-function playNote(midi,t){
-  var f=freqOf(midi), tone=$("tone").value, dur=0.42;
+function playNote(midi,t,tail){
+  var f=freqOf(midi), tone=$("tone").value;
+  var dur = tail || TONE_TAIL[tone] || 0.5;
   var g=ctx.createGain(); g.connect(master);
   if(tone==="pluck"){
-    var src=ctx.createBufferSource(); src.buffer=ksBuffer(f,0.9);
+    var src=ctx.createBufferSource(); src.buffer=ksBuffer(f,Math.max(0.35,dur+0.15));
     var lp=ctx.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=Math.min(6000,f*8);
     src.connect(lp); lp.connect(g);
     g.gain.setValueAtTime(0.0001,t);
     g.gain.exponentialRampToValueAtTime(0.9,t+0.005);
-    g.gain.exponentialRampToValueAtTime(0.0008,t+0.55);
-    src.start(t); src.stop(t+0.95);
+    g.gain.exponentialRampToValueAtTime(0.0008,t+dur);
+    src.start(t); src.stop(t+dur+0.05);
   } else if(tone==="piano"){
     var o1=ctx.createOscillator(); o1.type="triangle"; o1.frequency.value=f;
     var o2=ctx.createOscillator(); o2.type="sine"; o2.frequency.value=f*2;
@@ -220,8 +242,8 @@ function playNote(midi,t){
     o1.connect(g);
     g.gain.setValueAtTime(0.0001,t);
     g.gain.exponentialRampToValueAtTime(0.55,t+0.006);
-    g.gain.exponentialRampToValueAtTime(0.0008,t+0.5);
-    o1.start(t);o2.start(t);o1.stop(t+0.6);o2.stop(t+0.6);
+    g.gain.exponentialRampToValueAtTime(0.0008,t+dur);
+    o1.start(t);o2.start(t);o1.stop(t+dur+0.05);o2.stop(t+dur+0.05);
   } else {
     var o=ctx.createOscillator(); o.type="sine"; o.frequency.value=f;
     var oh=ctx.createOscillator(); oh.type="triangle"; oh.frequency.value=f;
@@ -268,6 +290,7 @@ function detect(){
   var SIZE=buf.length, sr=ctx.sampleRate, i, rms=0;
   for(i=0;i<SIZE;i++) rms+=buf[i]*buf[i];
   rms=Math.sqrt(rms/SIZE);
+  lastRms=rms;
   $("lvl").style.width=Math.min(100,rms*900)+"%";
   if(rms < parseFloat($("sens").value)) return null;
 
@@ -297,10 +320,21 @@ function detect(){
   return {midi: Math.round(69+12*Math.log2(f/440)), freq:f, clarity:x2};
 }
 
+function armOnset(){
+  onsetArmed = isSpeakers();
+  onsetFloor = false;
+  onsetOk = !onsetArmed;   // headphones: behave exactly as before
+}
+
 function sampleLoop(){
   if(!listening) return;
   var d=detect();
-  if(d){
+  if(onsetArmed && !onsetOk){
+    var sens=parseFloat($("sens").value);
+    if(lastRms < sens*0.7) onsetFloor=true;
+    else if(onsetFloor && lastRms > sens*1.3) onsetOk=true;
+  }
+  if(d && onsetOk){
     votes[d.midi]=(votes[d.midi]||0)+d.clarity;
     $("heard").textContent="pitch locked";
   }
@@ -350,19 +384,25 @@ function cycle(T){
   $("phase").className="phase"; $("phase").textContent="my note";
   $("heard").textContent="";
 
-  playNote(cur,T);
+  var tail=callTail(beat);
+  playNote(cur,T,tail);
   click(T,true);
   click(T+beat,false);
 
   at(T,function(){ pulse("b0"); });
   at(T+beat,function(){ pulse("b1"); });
 
-  // listening window
-  at(T+beat*0.55,function(){
-    votes={}; listening=true;
+  // listening window — through speakers it never opens while my own note is
+  // still sounding, so the mic cannot score my bleed as your answer
+  var openAt = isSpeakers() ? Math.max(beat*0.55, tail+0.08) : beat*0.55;
+  at(T+openAt,function(){
+    votes={}; listening=true; armOnset();
     $("phase").className="phase listen"; $("phase").textContent="your turn";
     sampleLoop();
   });
+  // safety valve: a noisy room might never dip below the floor, so release the
+  // onset gate regardless rather than lock you out of scoring
+  at(T+openAt+beat*0.45,function(){ onsetOk=true; });
 
   // judge
   at(T+beat*1.80,function(){
@@ -450,7 +490,9 @@ async function start(){
   if(!analyser){
     try{
       micStream=await navigator.mediaDevices.getUserMedia({audio:{
-        echoCancellation:false, noiseSuppression:false, autoGainControl:false
+        // echo cancellation is the browser subtracting my own output from what
+        // the mic hears — wanted on speakers, harmful to pitch on headphones
+        echoCancellation:isSpeakers(), noiseSuppression:false, autoGainControl:false
       }});
     }catch(e){
       $("err").textContent="Mic access denied or unavailable — "+e.message;
@@ -481,6 +523,15 @@ function stop(){
   $("phase").className="phase"; $("phase").textContent="stopped";
   $("lvl").style.width="0%";
 }
+
+$("output").onchange=function(){
+  if(!micStream) return;
+  var tr=micStream.getAudioTracks()[0];
+  if(!tr || !tr.applyConstraints){ $("micstate").textContent="press Stop then Start to apply"; return; }
+  tr.applyConstraints({echoCancellation:isSpeakers(), noiseSuppression:false, autoGainControl:false})
+    .then(function(){ $("micstate").textContent = isSpeakers() ? "speaker mode — echo cancellation on" : "headphone mode"; })
+    .catch(function(){ $("micstate").textContent="press Stop then Start to apply"; });
+};
 
 $("start").onclick=start;
 $("stop").onclick=stop;

@@ -45,7 +45,11 @@ Four tiers, each widening the note pool and the range:
 
 Adjustable tempo, three tones (clean synth, plucked guitar, piano), three mic sensitivity settings, optional metronome click, and an optional exact-octave requirement. Tracks streak, best streak, accuracy, and per-tier first-try rate.
 
-**Use headphones.** Otherwise the mic hears the app's own note and scores it as yours.
+**Headphones or speakers both work.** Set the **Output** control to match how you're listening.
+
+On **Speakers**, the app defends against hearing its own note three ways: it shortens the call so it decays well before your beat, it holds the mic closed until the note has fully died away, and it asks the browser for echo cancellation on the mic stream. A fourth layer requires a fresh attack — a rise in level after the room goes quiet — before anything counts, so reverb tails don't get scored.
+
+Headphones remain the cleanest option and the only one that removes the risk entirely, but speakers are now perfectly usable. On **Headphones** the timing is unchanged and echo cancellation stays off, since it degrades pitch detection on sustained tones.
 
 Pitch detection is pitch-class only by default — a guitar's written C sounds an octave lower than concert C, so exact-octave mode stays off unless you turn it on. Play one clean note per beat and let it ring.
 
