@@ -66,7 +66,9 @@ a.card p { margin: 0 0 10px; color: var(--text-secondary); font-size: 13px; line
 .note ul { margin: 8px 0 0; padding-left: 18px; }
 .note li { margin-bottom: 5px; }
 footer { margin-top: 24px; font-size: 12px; color: var(--muted); line-height: 1.6; }
-footer a { color: var(--muted); }
+footer a { color: var(--series-1); text-decoration: none; font-weight: 600; }
+footer a:hover { text-decoration: underline; }
+footer .sep { opacity: .5; margin: 0 6px; }
 </style>
 </head>
 <body>
@@ -111,7 +113,18 @@ footer a { color: var(--muted); }
   </div>
 
   <footer>
-    Open source under the MIT license. Built with Claude Code.
+    <p style="margin:0 0 8px">
+      <a href="https://square.link/u/xARGS5Yf" target="_blank" rel="noopener">Support this project</a>
+      <span class="sep">·</span>
+      <a href="https://github.com/steveheavenstone/ear-training" target="_blank" rel="noopener">Source on GitHub</a>
+    </p>
+    <p style="margin:0 0 10px">
+      Check out my music —
+      <a href="https://www.instagram.com/steveheavenstone/" target="_blank" rel="noopener">Instagram</a>
+      <span class="sep">·</span>
+      <a href="https://www.youtube.com/@steveheavenstone" target="_blank" rel="noopener">YouTube</a>
+    </p>
+    <p style="margin:0">Free and open source under the MIT license. If these are useful to you, a tip keeps them free for everyone.</p>
   </footer>
 
 </div>

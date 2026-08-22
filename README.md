@@ -71,6 +71,12 @@ Then visit http://localhost:8000.
 
 No accounts, no analytics, no network requests of any kind. The microphone stream in Call & Response is analyzed in the browser and never recorded, stored, or transmitted.
 
+## Support
+
+These are free and will stay that way. If they are useful to you, [a tip](https://square.link/u/xARGS5Yf) keeps them free for everyone.
+
+Built by Steve Heavenstone — check out my music on [Instagram](https://www.instagram.com/steveheavenstone/) and [YouTube](https://www.youtube.com/@steveheavenstone).
+
 ## License
 
 MIT — see [LICENSE](LICENSE). Use them, fork them, adapt them for your own students.
