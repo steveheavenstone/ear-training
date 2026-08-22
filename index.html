@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ear Training</title>
+<style>
+:root {
+  color-scheme: light;
+  --surface-1: #fcfcfb;
+  --page: #f9f9f7;
+  --text-primary: #0b0b0b;
+  --text-secondary: #52514e;
+  --muted: #898781;
+  --border: rgba(11,11,11,0.10);
+  --series-1: #2a78d6;
+  --series-1-soft: #cde2fb;
+  --btn-bg: #ffffff;
+}
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+    --surface-1: #1a1a19;
+    --page: #0d0d0d;
+    --text-primary: #ffffff;
+    --text-secondary: #c3c2b7;
+    --muted: #898781;
+    --border: rgba(255,255,255,0.10);
+    --series-1: #3987e5;
+    --series-1-soft: #17324f;
+    --btn-bg: #242423;
+  }
+}
+* { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+body {
+  margin: 0; background: var(--page); color: var(--text-primary);
+  font-family: system-ui, -apple-system, "Segoe UI", sans-serif;
+  min-height: 100vh; padding-bottom: 48px;
+  -webkit-font-smoothing: antialiased;
+}
+.wrap { max-width: 560px; margin: 0 auto; padding: 12px 14px; }
+header { padding: 24px 0 8px; }
+header h1 { font-size: 26px; margin: 0 0 6px; letter-spacing: -0.02em; }
+header p { margin: 0; color: var(--text-secondary); font-size: 14px; line-height: 1.5; }
+a.card {
+  display: block; text-decoration: none; color: inherit;
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: 14px; padding: 16px; margin-bottom: 12px;
+  transition: border-color .15s ease, transform .15s ease;
+}
+a.card:hover { border-color: var(--series-1); transform: translateY(-1px); }
+a.card h2 { font-size: 17px; margin: 0 0 4px; letter-spacing: -0.01em; }
+a.card p { margin: 0 0 10px; color: var(--text-secondary); font-size: 13px; line-height: 1.55; }
+.tags { display: flex; flex-wrap: wrap; gap: 6px; }
+.tag {
+  font-size: 11px; font-weight: 600; padding: 3px 8px; border-radius: 999px;
+  background: var(--series-1-soft); color: var(--series-1);
+}
+.go { font-size: 13px; font-weight: 600; color: var(--series-1); }
+.note {
+  background: var(--surface-1); border: 1px solid var(--border);
+  border-radius: 14px; padding: 14px; margin-top: 20px;
+  font-size: 13px; line-height: 1.6; color: var(--text-secondary);
+}
+.note strong { color: var(--text-primary); }
+.note ul { margin: 8px 0 0; padding-left: 18px; }
+.note li { margin-bottom: 5px; }
+footer { margin-top: 24px; font-size: 12px; color: var(--muted); line-height: 1.6; }
+footer a { color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Ear Training</h1>
+    <p>Two browser-based ear trainers. No install, no account, no audio files — every sound is generated live in the browser. Works on phones.</p>
+  </header>
+
+  <a class="card" href="key-sense.html">
+    <h2>Key Sense — Functional Ear Trainer</h2>
+    <p>Hear every note and chord <em>relative to the key</em>. A cadence establishes the tonic, then you identify scale degrees, chord functions, full progressions, or melodies by number. Five difficulty levels, three instrument voices, and a stats tab that surfaces your top confusion pairs. Includes a 50-minute session plan.</p>
+    <div class="tags">
+      <span class="tag">Degrees</span>
+      <span class="tag">Chord function</span>
+      <span class="tag">Progressions</span>
+      <span class="tag">Melody</span>
+      <span class="tag">Stats</span>
+    </div>
+    <p style="margin:10px 0 0"><span class="go">Open trainer →</span></p>
+  </a>
+
+  <a class="card" href="monder-call-response.html">
+    <h2>Ben Monder Call &amp; Response</h2>
+    <p>The app plays a note; you play it back on your instrument within the beat. Get it right and a new note comes. Get it wrong and the same note returns until you nail it — and the note name stays hidden the whole time. Adjustable tempo, mic sensitivity, and optional exact-octave matching.</p>
+    <div class="tags">
+      <span class="tag">Microphone</span>
+      <span class="tag">Pitch detection</span>
+      <span class="tag">Play-along</span>
+    </div>
+    <p style="margin:10px 0 0"><span class="go">Open trainer →</span></p>
+  </a>
+
+  <div class="note">
+    <strong>Before you start</strong>
+    <ul>
+      <li><strong>Use headphones.</strong> Essential for Call &amp; Response — otherwise the mic hears the app's own note and scores it as yours.</li>
+      <li><strong>Call &amp; Response needs mic permission.</strong> Your browser will ask. Nothing is recorded or uploaded; pitch detection runs entirely on your device.</li>
+      <li><strong>Sing before you answer.</strong> Both trainers are built around committing out loud first, then tapping. Tapping without singing trains your eyes, not your ears.</li>
+    </ul>
+  </div>
+
+  <footer>
+    Open source under the MIT license. Built with Claude Code.
+  </footer>
+
+</div>
+</body>
+</html>

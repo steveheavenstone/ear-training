@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Monder Call &amp; Response — Ear Trainer</title>
+<style>
+  :root{
+    --bg:#0e1013; --panel:#171a1f; --panel2:#1f242b; --line:#2b323b;
+    --fg:#e8ecf1; --dim:#8b95a3; --accent:#7cc4ff; --ok:#5fd6a4; --bad:#ff6b6b; --warn:#ffc857;
+  }
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  body{
+    background:var(--bg); color:var(--fg);
+    font:15px/1.5 ui-sans-serif,-apple-system,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+    -webkit-font-smoothing:antialiased;
+    padding:24px 16px 60px; display:flex; justify-content:center;
+  }
+  .wrap{width:100%;max-width:900px}
+  h1{font-size:19px;font-weight:650;margin:0 0 2px;letter-spacing:-.01em}
+  .sub{color:var(--dim);font-size:13px;margin:0 0 20px}
+  .panel{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:18px;margin-bottom:14px}
+  .row{display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+  label{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;display:block;margin-bottom:6px}
+  select,input[type=number]{
+    background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:8px;
+    padding:8px 10px;font:inherit;font-size:14px;min-width:70px
+  }
+  button{
+    background:var(--panel2);color:var(--fg);border:1px solid var(--line);border-radius:9px;
+    padding:10px 18px;font:inherit;font-weight:600;cursor:pointer;transition:.12s
+  }
+  button:hover:not(:disabled){border-color:#4a5563;background:#252b33}
+  button:disabled{opacity:.4;cursor:default}
+  button.primary{background:var(--accent);color:#06121d;border-color:var(--accent)}
+  button.primary:hover:not(:disabled){background:#9ad2ff;border-color:#9ad2ff}
+  button.stop{background:#3a1f22;border-color:#5c2b30;color:#ffb3b3}
+
+  /* tiers */
+  .tiers{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+  .tier{
+    background:var(--panel2);border:1px solid var(--line);border-radius:11px;padding:12px;
+    cursor:pointer;transition:.12s
+  }
+  .tier:hover{border-color:#4a5563}
+  .tier.on{border-color:var(--accent);background:#16283a}
+  .tier .t{font-weight:650;font-size:14px;margin-bottom:3px}
+  .tier .d{font-size:12px;color:var(--dim);line-height:1.45}
+
+  /* stage */
+  .stage{
+    background:linear-gradient(180deg,#151a21,#11151a);
+    border:1px solid var(--line);border-radius:16px;padding:28px 20px;text-align:center;position:relative;overflow:hidden
+  }
+  .beats{display:flex;gap:8px;justify-content:center;margin-bottom:18px}
+  .beat{width:9px;height:9px;border-radius:50%;background:#2b323b;transition:.08s}
+  .beat.on{background:var(--accent);transform:scale(1.5)}
+  .beat.on.you{background:var(--warn)}
+  .note{font-size:76px;font-weight:700;letter-spacing:-.03em;line-height:1;margin:4px 0 6px;font-variant-numeric:tabular-nums}
+  .note small{font-size:26px;color:var(--dim);font-weight:600;margin-left:6px}
+  .deg{font-size:13px;color:var(--dim);height:18px;letter-spacing:.06em;text-transform:uppercase}
+  .phase{margin-top:14px;font-size:15px;font-weight:600;height:24px}
+  .phase.listen{color:var(--warn)}
+  .phase.ok{color:var(--ok)}
+  .phase.bad{color:var(--bad)}
+  .heard{margin-top:6px;font-size:13px;color:var(--dim);height:20px;font-variant-numeric:tabular-nums}
+  .meter{height:4px;background:#20262e;border-radius:4px;overflow:hidden;max-width:280px;margin:14px auto 0}
+  .meter i{display:block;height:100%;width:0%;background:var(--ok);transition:.05s}
+
+  /* stats */
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{padding:8px 6px;text-align:right;border-bottom:1px solid var(--line)}
+  th:first-child,td:first-child{text-align:left}
+  th{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em;font-weight:600}
+  tr.cur td{color:var(--accent)}
+  .big{display:flex;gap:26px;flex-wrap:wrap;margin-bottom:14px}
+  .big div{min-width:80px}
+  .big .v{font-size:28px;font-weight:700;line-height:1.1;font-variant-numeric:tabular-nums}
+  .big .k{font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:.06em}
+  .tip{font-size:12.5px;color:var(--dim);line-height:1.6}
+  .tip b{color:#b9c3cf;font-weight:600}
+  .switch{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--fg);cursor:pointer;text-transform:none;letter-spacing:0;margin:0}
+  .switch input{width:16px;height:16px;accent-color:var(--accent)}
+  .err{color:var(--bad);font-size:13px;margin-top:8px}
+  @media(max-width:520px){.note{font-size:56px}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <h1>Ben Monder call &amp; response</h1>
+  <p class="sub">I play a note. You play it back within the beat. Right &rarr; new note. Wrong &rarr; same note again.</p>
+
+  <div class="panel">
+    <div class="tiers" id="tiers"></div>
+  </div>
+
+  <div class="panel">
+    <div class="row" style="gap:18px">
+      <div><label>Tempo</label><input type="number" id="bpm" value="60" min="30" max="140" step="1"></div>
+      <div><label>Tone</label>
+        <select id="tone">
+          <option value="synth">Clean synth</option>
+          <option value="pluck">Plucked guitar</option>
+          <option value="piano">Piano</option>
+        </select>
+      </div>
+      <div><label>Mic sensitivity</label>
+        <select id="sens">
+          <option value="0.020">Low</option>
+          <option value="0.010" selected>Medium</option>
+          <option value="0.005">High</option>
+        </select>
+      </div>
+      <div style="flex:1;min-width:190px">
+        <label>Options</label>
+        <label class="switch"><input type="checkbox" id="octave"> Require exact octave</label>
+        <label class="switch" style="margin-top:5px"><input type="checkbox" id="click" checked> Metronome click</label>
+      </div>
+    </div>
+    <div class="row" style="margin-top:18px">
+      <button class="primary" id="start">Start</button>
+      <button id="stop" class="stop" disabled>Stop</button>
+      <button id="reset">Reset stats</button>
+      <span class="tip" id="micstate" style="margin-left:auto"></span>
+    </div>
+    <div class="err" id="err"></div>
+  </div>
+
+  <div class="stage">
+    <div class="beats"><div class="beat" id="b0"></div><div class="beat you" id="b1"></div></div>
+    <div class="note" id="note">—</div>
+    <div class="deg" id="deg"></div>
+    <div class="phase" id="phase">Press Start</div>
+    <div class="heard" id="heard"></div>
+    <div class="meter"><i id="lvl"></i></div>
+  </div>
+
+  <div class="panel" style="margin-top:14px">
+    <div class="big">
+      <div><div class="v" id="streak">0</div><div class="k">Streak</div></div>
+      <div><div class="v" id="best">0</div><div class="k">Best</div></div>
+      <div><div class="v" id="acc">—</div><div class="k">Accuracy</div></div>
+      <div><div class="v" id="cnt">0</div><div class="k">Calls</div></div>
+    </div>
+    <table>
+      <thead><tr><th>Tier</th><th>Calls</th><th>First-try</th><th>Accuracy</th><th>Best streak</th></tr></thead>
+      <tbody id="stats"></tbody>
+    </table>
+    <p class="tip" style="margin:14px 0 0">
+      <b>Use headphones</b> so the mic doesn't hear my note and score it as yours.
+      The note name stays hidden — it's only revealed after you nail it. Miss it and it stays hidden and comes back.
+      Detection is pitch-class only by default — a guitar's written C sounds an octave lower, so exact-octave mode is
+      off unless you turn it on. Play one clean note per beat and let it ring.
+    </p>
+  </div>
+
+</div>
+
+<script>
+(function(){
+"use strict";
+
+// ---------- note utilities ----------
+var NAMES = ["C","Db","D","Eb","E","F","Gb","G","Ab","A","Bb","B"];
+var DEGREE = ["1","b2","2","b3","3","4","b5","5","b6","6","b7","7"];
+function nameOf(m){ return NAMES[((m%12)+12)%12] + (Math.floor(m/12)-1); }
+function pcName(m){ return NAMES[((m%12)+12)%12]; }
+function degOf(m){ return DEGREE[((m%12)+12)%12]; }
+function freqOf(m){ return 440*Math.pow(2,(m-69)/12); }
+
+var MAJ=[0,2,4,5,7,9,11];
+var T2=[0,2,3,4,5,7,8,9,10,11];
+var ALL=[0,1,2,3,4,5,6,7,8,9,10,11];
+
+var TIERS=[
+ {n:"Tier 1", pcs:MAJ, lo:53, hi:72, d:"Diatonic (C major). F below middle C up to C an octave above."},
+ {n:"Tier 2", pcs:T2,  lo:53, hi:72, d:"Same range, plus b3, b6, b7."},
+ {n:"Tier 3", pcs:ALL, lo:48, hi:76, d:"Adds b2 and b5 (all 12). C below middle C up to E a tenth above."},
+ {n:"Tier 4", pcs:ALL, lo:43, hi:76, d:"All 12, widest range: G (low E string, 3rd fret) up to that same E."}
+];
+function poolFor(t){
+  var T=TIERS[t], out=[];
+  for(var m=T.lo;m<=T.hi;m++) if(T.pcs.indexOf(((m%12)+12)%12)>=0) out.push(m);
+  return out;
+}
+
+// ---------- state ----------
+var tier=0, running=false, target=60, awaitingRepeat=false;
+var stats=TIERS.map(function(){return {calls:0,first:0,best:0};});
+var streak=0, best=0;
+var ctx=null, master=null, analyser=null, micStream=null, buf=null;
+var timers=[], listening=false, votes={}, nextT=0, detTimer=null;
+
+var $=function(id){return document.getElementById(id);};
+
+// ---------- audio engine ----------
+function initCtx(){
+  if(ctx) return;
+  ctx = new (window.AudioContext||window.webkitAudioContext)();
+  master = ctx.createGain(); master.gain.value=0.85; master.connect(ctx.destination);
+}
+
+function playNote(midi,t){
+  var f=freqOf(midi), tone=$("tone").value, dur=0.42;
+  var g=ctx.createGain(); g.connect(master);
+  if(tone==="pluck"){
+    var src=ctx.createBufferSource(); src.buffer=ksBuffer(f,0.9);
+    var lp=ctx.createBiquadFilter(); lp.type="lowpass"; lp.frequency.value=Math.min(6000,f*8);
+    src.connect(lp); lp.connect(g);
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(0.9,t+0.005);
+    g.gain.exponentialRampToValueAtTime(0.0008,t+0.55);
+    src.start(t); src.stop(t+0.95);
+  } else if(tone==="piano"){
+    var o1=ctx.createOscillator(); o1.type="triangle"; o1.frequency.value=f;
+    var o2=ctx.createOscillator(); o2.type="sine"; o2.frequency.value=f*2;
+    var g2=ctx.createGain(); g2.gain.value=0.22; o2.connect(g2); g2.connect(g);
+    o1.connect(g);
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(0.55,t+0.006);
+    g.gain.exponentialRampToValueAtTime(0.0008,t+0.5);
+    o1.start(t);o2.start(t);o1.stop(t+0.6);o2.stop(t+0.6);
+  } else {
+    var o=ctx.createOscillator(); o.type="sine"; o.frequency.value=f;
+    var oh=ctx.createOscillator(); oh.type="triangle"; oh.frequency.value=f;
+    var gh=ctx.createGain(); gh.gain.value=0.16; oh.connect(gh); gh.connect(g);
+    o.connect(g);
+    g.gain.setValueAtTime(0.0001,t);
+    g.gain.exponentialRampToValueAtTime(0.5,t+0.02);
+    g.gain.setValueAtTime(0.5,t+dur*0.55);
+    g.gain.exponentialRampToValueAtTime(0.0008,t+dur);
+    o.start(t);oh.start(t);o.stop(t+dur+0.05);oh.stop(t+dur+0.05);
+  }
+}
+
+function ksBuffer(freq,dur){
+  var sr=ctx.sampleRate, N=Math.max(2,Math.round(sr/freq)), len=Math.round(sr*dur);
+  var b=ctx.createBuffer(1,len,sr), d=b.getChannelData(0);
+  var ring=new Float32Array(N);
+  for(var i=0;i<N;i++) ring[i]=Math.random()*2-1;
+  var idx=0, decay=0.9965;
+  for(var j=0;j<len;j++){
+    var cur=ring[idx], nxt=ring[(idx+1)%N];
+    d[j]=cur;
+    ring[idx]=(cur+nxt)*0.5*decay;
+    idx=(idx+1)%N;
+  }
+  return b;
+}
+
+function click(t,accent){
+  if(!$("click").checked) return;
+  var o=ctx.createOscillator(), g=ctx.createGain();
+  o.type="square"; o.frequency.value=accent?1600:1050;
+  o.connect(g); g.connect(master);
+  g.gain.setValueAtTime(0.0001,t);
+  g.gain.exponentialRampToValueAtTime(accent?0.16:0.08,t+0.002);
+  g.gain.exponentialRampToValueAtTime(0.0001,t+0.045);
+  o.start(t); o.stop(t+0.06);
+}
+
+// ---------- pitch detection ----------
+function detect(){
+  if(!analyser) return null;
+  analyser.getFloatTimeDomainData(buf);
+  var SIZE=buf.length, sr=ctx.sampleRate, i, rms=0;
+  for(i=0;i<SIZE;i++) rms+=buf[i]*buf[i];
+  rms=Math.sqrt(rms/SIZE);
+  $("lvl").style.width=Math.min(100,rms*900)+"%";
+  if(rms < parseFloat($("sens").value)) return null;
+
+  var minLag=Math.floor(sr/1350), maxLag=Math.min(Math.floor(sr/68),Math.floor(SIZE*0.5));
+  var bestVal=-1, cvals=new Float32Array(maxLag+1);
+  for(var lag=minLag;lag<=maxLag;lag++){
+    var s=0,e1=0,e2=0,n=SIZE-lag;
+    for(i=0;i<n;i++){ var a=buf[i],b2=buf[i+lag]; s+=a*b2; e1+=a*a; e2+=b2*b2; }
+    var nz=Math.sqrt(e1*e2);
+    var v = nz>1e-12 ? s/nz : 0;
+    cvals[lag]=v;
+    if(v>bestVal) bestVal=v;
+  }
+  if(bestVal<0.80) return null;
+
+  // lowest lag whose local peak reaches 90% of the global best (avoids octave-down errors)
+  var thr=bestVal*0.90, pick=-1;
+  for(var L=minLag+1;L<maxLag;L++){
+    if(cvals[L]>=thr && cvals[L]>=cvals[L-1] && cvals[L]>=cvals[L+1]){ pick=L; break; }
+  }
+  if(pick<0) return null;
+  var x1=cvals[pick-1],x2=cvals[pick],x3=cvals[pick+1];
+  var aa=(x1+x3-2*x2)/2, bb=(x3-x1)/2, T0=pick;
+  if(aa!==0) T0=pick-bb/(2*aa);
+  var f=sr/T0;
+  if(f<60||f>1400) return null;
+  return {midi: Math.round(69+12*Math.log2(f/440)), freq:f, clarity:x2};
+}
+
+function sampleLoop(){
+  if(!listening) return;
+  var d=detect();
+  if(d){
+    votes[d.midi]=(votes[d.midi]||0)+d.clarity;
+    $("heard").textContent="pitch locked";
+  }
+  detTimer=setTimeout(sampleLoop,45);
+}
+
+function verdict(){
+  var keys=Object.keys(votes);
+  if(!keys.length) return null;
+  var bestK=null,bestV=-1;
+  // merge octave duplicates when pitch-class matching
+  if(!$("octave").checked){
+    var byPc={};
+    keys.forEach(function(k){
+      var pc=((+k%12)+12)%12;
+      byPc[pc]=(byPc[pc]||0)+votes[k];
+    });
+    Object.keys(byPc).forEach(function(pc){ if(byPc[pc]>bestV){bestV=byPc[pc];bestK=+pc;} });
+    return {pc:bestK, score:bestV};
+  }
+  keys.forEach(function(k){ if(votes[k]>bestV){bestV=votes[k];bestK=+k;} });
+  return {midi:bestK, score:bestV};
+}
+
+// ---------- game loop ----------
+function clearTimers(){ timers.forEach(clearTimeout); timers=[]; if(detTimer){clearTimeout(detTimer);detTimer=null;} }
+function at(audioTime,fn){
+  var ms=Math.max(0,(audioTime-ctx.currentTime)*1000);
+  timers.push(setTimeout(fn,ms));
+}
+
+function pickNote(){
+  var pool=poolFor(tier);
+  var n=target;
+  var guard=0;
+  while(n===target && guard++<40) n=pool[Math.floor(Math.random()*pool.length)];
+  return n;
+}
+
+function cycle(T){
+  if(!running) return;
+  var beat=60/Math.max(30,Math.min(140,parseInt($("bpm").value||60,10)));
+  var cur=target;
+
+  $("note").innerHTML="?";
+  $("deg").textContent=awaitingRepeat?"same note again":"";
+  $("phase").className="phase"; $("phase").textContent="my note";
+  $("heard").textContent="";
+
+  playNote(cur,T);
+  click(T,true);
+  click(T+beat,false);
+
+  at(T,function(){ pulse("b0"); });
+  at(T+beat,function(){ pulse("b1"); });
+
+  // listening window
+  at(T+beat*0.55,function(){
+    votes={}; listening=true;
+    $("phase").className="phase listen"; $("phase").textContent="your turn";
+    sampleLoop();
+  });
+
+  // judge
+  at(T+beat*1.80,function(){
+    listening=false; if(detTimer){clearTimeout(detTimer);detTimer=null;}
+    var v=verdict();
+    var ok=false, label="nothing heard";
+    if(v){
+      if($("octave").checked){ ok = (v.midi===cur); label=nameOf(v.midi); }
+      else { ok = (v.pc === (((cur%12)+12)%12)); label=NAMES[v.pc]; }
+    }
+    score(ok, awaitingRepeat);
+    $("phase").className="phase "+(ok?"ok":"bad");
+    $("phase").textContent = ok ? "✓" : "✗";
+    if(ok){
+      // reveal only once it's been earned
+      $("note").innerHTML=pcName(cur)+'<small>'+(Math.floor(cur/12)-1)+'</small>';
+      $("deg").textContent=degOf(cur);
+      $("heard").textContent="";
+    } else {
+      $("note").innerHTML="?";
+      $("deg").textContent="";
+      $("heard").textContent = v ? "you played "+label : "nothing heard";
+    }
+    if(ok){ awaitingRepeat=false; target=pickNote(); }
+    else { awaitingRepeat=true; }
+    render();
+  });
+
+  nextT = T + beat*2;
+  at(nextT-0.06,function(){ cycle(nextT); });
+}
+
+function pulse(id){
+  var e=$(id); e.classList.add("on");
+  setTimeout(function(){e.classList.remove("on");},110);
+}
+
+function score(ok,wasRepeat){
+  var s=stats[tier];
+  s.calls++;
+  if(ok){
+    if(!wasRepeat) s.first++;
+    streak++; if(streak>best) best=streak;
+    if(streak>s.best) s.best=streak;
+  } else {
+    streak=0;
+  }
+}
+
+// ---------- UI ----------
+function renderTiers(){
+  var h="";
+  TIERS.forEach(function(T,i){
+    h+='<div class="tier'+(i===tier?" on":"")+'" data-i="'+i+'"><div class="t">'+T.n+'</div><div class="d">'+T.d+'</div></div>';
+  });
+  $("tiers").innerHTML=h;
+  Array.prototype.forEach.call(document.querySelectorAll(".tier"),function(el){
+    el.onclick=function(){
+      tier=+el.dataset.i;
+      awaitingRepeat=false;
+      if(!running){ target=60; $("note").innerHTML="—"; $("deg").textContent=""; }
+      renderTiers(); render();
+    };
+  });
+}
+
+function render(){
+  $("streak").textContent=streak;
+  $("best").textContent=best;
+  var s=stats[tier];
+  $("cnt").textContent=s.calls;
+  $("acc").textContent = s.calls? Math.round(100*s.first/s.calls)+"%" : "—";
+  var h="";
+  stats.forEach(function(x,i){
+    h+='<tr class="'+(i===tier?"cur":"")+'"><td>'+TIERS[i].n+'</td><td>'+x.calls+'</td><td>'+x.first+'</td><td>'+
+       (x.calls?Math.round(100*x.first/x.calls)+"%":"—")+'</td><td>'+x.best+'</td></tr>';
+  });
+  $("stats").innerHTML=h;
+}
+
+async function start(){
+  $("err").textContent="";
+  initCtx();
+  try{ await ctx.resume(); }catch(e){}
+  if(!analyser){
+    try{
+      micStream=await navigator.mediaDevices.getUserMedia({audio:{
+        echoCancellation:false, noiseSuppression:false, autoGainControl:false
+      }});
+    }catch(e){
+      $("err").textContent="Mic access denied or unavailable — "+e.message;
+      return;
+    }
+    var src=ctx.createMediaStreamSource(micStream);
+    analyser=ctx.createAnalyser();
+    analyser.fftSize=2048;
+    analyser.smoothingTimeConstant=0;
+    src.connect(analyser);
+    buf=new Float32Array(analyser.fftSize);
+    $("micstate").textContent="mic live";
+  }
+  running=true; streak=0; awaitingRepeat=false; target=60;
+  $("start").disabled=true; $("stop").disabled=false;
+  $("phase").textContent="counting in…";
+  render();
+
+  var beat=60/Math.max(30,Math.min(140,parseInt($("bpm").value||60,10)));
+  var t0=ctx.currentTime+0.25;
+  for(var i=0;i<4;i++){ click(t0+i*beat, i===0); (function(k){ at(t0+k*beat,function(){pulse(k%2?"b1":"b0");}); })(i); }
+  at(t0+4*beat,function(){ cycle(t0+4*beat); });
+}
+
+function stop(){
+  running=false; listening=false; clearTimers();
+  $("start").disabled=false; $("stop").disabled=true;
+  $("phase").className="phase"; $("phase").textContent="stopped";
+  $("lvl").style.width="0%";
+}
+
+$("start").onclick=start;
+$("stop").onclick=stop;
+$("reset").onclick=function(){
+  stats=TIERS.map(function(){return {calls:0,first:0,best:0};});
+  streak=0;best=0;render();
+};
+
+renderTiers();
+render();
+})();
+</script>
+</body>
+</html>
