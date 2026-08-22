@@ -2,7 +2,7 @@
 
 Two browser-based ear trainers. Each is a single self-contained HTML file — no build step, no dependencies, no audio assets, no server. All sound is synthesized live with the Web Audio API.
 
-**Live site:** https://USERNAME.github.io/ear-training/
+**Live site:** https://steveheavenstone.github.io/ear-training/
 
 ---
 
