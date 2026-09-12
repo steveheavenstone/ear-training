@@ -29,6 +29,22 @@ display, Barlow Condensed for labels, Karla for body.
 | Set list | the chart folders in the "Stevie and the Big Easy" Drive folder |
 | Photos | the press photos on steveheavenstone.com/media |
 
+## The booking form
+
+The "Tell us about the date" form has no backend: it gathers the fields and
+either hands them to the visitor's email app (`mailto:`) or copies them to the
+clipboard. That works anywhere the page is hosted, including inside an Artifact.
+
+On Netlify it can become a real form instead — add `data-netlify="true"` and a
+`name` to the `<form>`, and submissions land in the Netlify dashboard with email
+notification. Ask and I'll wire it up.
+
+## The mailing list
+
+"Join the list" currently points at the existing Kit signup at
+music.steveheavenstone.com. If a band-specific list gets made, swap that one URL
+in the booking sidebar.
+
 ## Still to confirm
 
 - Band member names and instruments (the page credits only the bandleader).

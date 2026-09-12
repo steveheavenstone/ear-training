@@ -232,6 +232,37 @@ section.band::before{
 
 /* ---- booking ---- */
 .booking{background:var(--surface);padding:clamp(1.75rem,4vw,2.75rem)}
+.booking-grid{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr);gap:clamp(1.75rem,4vw,3rem);align-items:start}
+.date-form{display:grid;grid-template-columns:repeat(auto-fit,minmax(11rem,1fr));gap:.9rem 1rem}
+.field{display:flex;flex-direction:column;gap:.3rem;min-width:0}
+.field.wide{grid-column:1/-1}
+.field label{
+  font-family:"Barlow Condensed","Arial Narrow",sans-serif;
+  text-transform:uppercase;letter-spacing:.12em;font-size:.8rem;color:var(--muted);
+}
+.field .opt{text-transform:none;letter-spacing:0;font-style:italic;opacity:.7}
+.field input,.field select,.field textarea{
+  width:100%;font-family:inherit;font-size:.95rem;color:var(--text);
+  background:var(--surface-2);border:1px solid var(--rule-soft);border-radius:2px;
+  padding:.5rem .6rem;
+}
+.field textarea{resize:vertical}
+.field input::placeholder,.field textarea::placeholder{color:var(--muted);opacity:.7}
+.field input:focus-visible,.field select:focus-visible,.field textarea:focus-visible{
+  outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold);
+}
+.form-actions{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:.75rem;margin-top:.35rem}
+.form-actions .btn{font-family:"Barlow Condensed","Arial Narrow",sans-serif;cursor:pointer;background:none}
+.form-actions .btn.solid{background:var(--gold)}
+.form-status{grid-column:1/-1;margin:0;min-height:1.4em;color:var(--green)}
+.form-status.warn{color:var(--gold)}
+.booking-side h3{margin-bottom:.5rem}
+.booking-side .email{font-size:clamp(1rem,.8rem + .55vw,1.3rem);margin-bottom:.75rem}
+.booking-side .side-h{margin-top:1.75rem}
+.list-block{
+  margin-top:1.75rem;padding-top:1.5rem;border-top:1px solid var(--rule-soft);
+}
+.list-block .btn{margin-top:.75rem}
 .booking .email{
   font-family:"Ultra",Georgia,serif;font-size:clamp(1.1rem,.7rem + 1.9vw,2rem);
   line-height:1.15;word-break:break-word;color:var(--gold);text-decoration:none;
@@ -259,7 +290,7 @@ footer a{color:var(--muted)}
 }
 
 @media (max-width:44rem){
-  .hero-grid,.bio{grid-template-columns:1fr}
+  .hero-grid,.bio,.booking-grid{grid-template-columns:1fr}
   .hero-art{order:-1;aspect-ratio:8/7}
   .hero-watermark{display:none}
   .photos a.wide{grid-column:span 1}
@@ -493,16 +524,87 @@ footer a{color:var(--muted)}
     <div class="tricolor" aria-hidden="true"></div>
     <div class="booking">
       <p class="eyebrow"><svg class="fdl" aria-hidden="true"><use href="#fleur"/></svg>Booking</p>
-      <h2 class="display" style="font-size:clamp(1.6rem,1.1rem + 2vw,2.4rem);margin-bottom:1rem">Tell us the date and the room size</h2>
-      <a class="email" href="mailto:steveheavenstone@gmail.com?subject=Booking%20Stevie%20and%20the%20Big%20Easy">steveheavenstone@gmail.com</a>
-      <p class="small muted">Steve Heavenstone, bandleader — Heavenstone Productions, Phoenix, AZ. Include the date, venue, set times and whether you want horns, and you'll get a quote and a hold.</p>
-      <ul class="links">
-        <li><a href="https://www.youtube.com/@steveheavenstone">YouTube</a></li>
-        <li><a href="https://www.instagram.com/steveheavenstone">Instagram</a></li>
-        <li><a href="https://www.facebook.com/steveheavenstone">Facebook</a></li>
-        <li><a href="https://music.steveheavenstone.com">Mailing list</a></li>
-        <li><a href="https://steveheavenstone.com/bands">steveheavenstone.com</a></li>
-      </ul>
+      <h2 class="display" style="font-size:clamp(1.6rem,1.1rem + 2vw,2.4rem);margin-bottom:.75rem">Tell us about the date</h2>
+      <p class="small muted" style="margin-bottom:1.75rem">Fill this in and it writes the email for you — or just write to <a href="mailto:steveheavenstone@gmail.com?subject=Booking%20Stevie%20and%20the%20Big%20Easy">steveheavenstone@gmail.com</a> directly.</p>
+
+      <div class="booking-grid">
+        <form class="date-form" id="date-form" novalidate>
+          <div class="field">
+            <label for="gig-date">Date</label>
+            <input type="date" id="gig-date" name="date">
+          </div>
+          <div class="field">
+            <label for="gig-place">Venue and city</label>
+            <input type="text" id="gig-place" name="place" placeholder="The Womack, Phoenix" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="gig-kind">What is it</label>
+            <select id="gig-kind" name="kind">
+              <option>Club or bar</option>
+              <option>Festival or street fair</option>
+              <option>Mardi Gras party</option>
+              <option>Private party</option>
+              <option>Wedding</option>
+              <option>Corporate event</option>
+              <option>Something else</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="gig-size">Band size</label>
+            <select id="gig-size" name="size">
+              <option>Quartet — four pieces</option>
+              <option selected>Five or six — with a horn or 2</option>
+              <option>Eight or more — full parade</option>
+              <option>Not sure, tell me what fits</option>
+            </select>
+          </div>
+          <div class="field">
+            <label for="gig-times">Set times</label>
+            <input type="text" id="gig-times" name="times" placeholder="Two 60s, 8–11pm" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="gig-budget">Budget <span class="opt">optional</span></label>
+            <input type="text" id="gig-budget" name="budget" placeholder="Range is fine" autocomplete="off">
+          </div>
+          <div class="field">
+            <label for="gig-name">Your name</label>
+            <input type="text" id="gig-name" name="name" autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="gig-email">Your email</label>
+            <input type="email" id="gig-email" name="email" autocomplete="email">
+          </div>
+          <div class="field wide">
+            <label for="gig-notes">Anything else</label>
+            <textarea id="gig-notes" name="notes" rows="3" placeholder="Stage size, PA, parking, a tune you want in the set"></textarea>
+          </div>
+          <div class="form-actions">
+            <button class="btn solid" type="submit">Write the email</button>
+            <button class="btn" type="button" id="copy-details">Copy the details</button>
+          </div>
+          <p class="form-status small" id="form-status" role="status" aria-live="polite"></p>
+        </form>
+
+        <aside class="booking-side">
+          <h3>Booking direct</h3>
+          <a class="email" href="mailto:steveheavenstone@gmail.com?subject=Booking%20Stevie%20and%20the%20Big%20Easy">steveheavenstone@gmail.com</a>
+          <p class="small muted">Steve Heavenstone, bandleader — Heavenstone Productions, Phoenix, AZ. You&#39;ll get a quote and a hold.</p>
+
+          <div class="list-block">
+            <h3>The gig list</h3>
+            <p class="small">Where the band is playing next, a couple of emails a month. No spam, ever.</p>
+            <a class="btn" href="https://music.steveheavenstone.com">Join the list</a>
+          </div>
+
+          <h3 class="side-h">Follow</h3>
+          <ul class="links">
+            <li><a href="https://www.youtube.com/playlist?list=PLci9yqCt6h_U">YouTube</a></li>
+            <li><a href="https://www.instagram.com/stevieandthebigeasy">Instagram</a></li>
+            <li><a href="https://www.facebook.com/steveheavenstone">Facebook</a></li>
+            <li><a href="https://steveheavenstone.com/bands">steveheavenstone.com</a></li>
+          </ul>
+        </aside>
+      </div>
     </div>
   </section>
 
@@ -512,6 +614,100 @@ footer a{color:var(--muted)}
   <p class="roll"><svg class="fdl" aria-hidden="true"><use href="#fleur"/></svg>Laissez les bons temps rouler.</p>
   <p>Stevie and the Big Easy — New Orleans funk, blues and jazz, out of Phoenix, Arizona. Booking: <a href="mailto:steveheavenstone@gmail.com">steveheavenstone@gmail.com</a></p>
 </footer>
+
+
+<script>
+(function () {
+  var form = document.getElementById('date-form');
+  if (!form) return;
+  var status = document.getElementById('form-status');
+  var copyBtn = document.getElementById('copy-details');
+  var TO = 'steveheavenstone@gmail.com';
+
+  function val(id) {
+    var el = document.getElementById(id);
+    return el && el.value ? el.value.trim() : '';
+  }
+
+  function prettyDate(v) {
+    if (!v) return '';
+    var p = v.split('-');
+    if (p.length !== 3) return v;
+    var d = new Date(+p[0], +p[1] - 1, +p[2]);
+    if (isNaN(d)) return v;
+    return d.toLocaleDateString(undefined, { weekday: 'long', month: 'long', day: 'numeric', year: 'numeric' });
+  }
+
+  function details() {
+    var rows = [
+      ['Date', prettyDate(val('gig-date'))],
+      ['Venue and city', val('gig-place')],
+      ['What it is', val('gig-kind')],
+      ['Band size', val('gig-size')],
+      ['Set times', val('gig-times')],
+      ['Budget', val('gig-budget')],
+      ['Name', val('gig-name')],
+      ['Email', val('gig-email')]
+    ].filter(function (r) { return r[1]; });
+    var text = rows.map(function (r) { return r[0] + ': ' + r[1]; }).join('\n');
+    var notes = val('gig-notes');
+    if (notes) text += '\n\nNotes:\n' + notes;
+    return text;
+  }
+
+  function subject() {
+    var d = prettyDate(val('gig-date'));
+    var place = val('gig-place');
+    return 'Stevie and the Big Easy — booking enquiry' +
+      (d ? ' for ' + d : '') + (place ? ' at ' + place : '');
+  }
+
+  function say(msg, warn) {
+    if (!status) return;
+    status.textContent = msg;
+    status.className = 'form-status small' + (warn ? ' warn' : '');
+  }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var body = details();
+    if (!body) { say('Add a date or a venue first.', true); return; }
+    var href = 'mailto:' + TO + '?subject=' + encodeURIComponent(subject()) +
+               '&body=' + encodeURIComponent('Hi Steve,\n\n' + body + '\n\nThanks!');
+    window.location.href = href;
+    say('Opening your email app. If nothing happens, hit "Copy the details" and send them to ' + TO + '.');
+  });
+
+  if (copyBtn) {
+    copyBtn.addEventListener('click', function () {
+      var text = details();
+      if (!text) { say('Fill in a field or two first.', true); return; }
+      text = subject() + '\n\n' + text;
+      var done = function () { say('Copied. Paste it into an email to ' + TO + '.'); };
+      try {
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(text).then(done, fallback);
+        } else { fallback(); }
+      } catch (err) { fallback(); }
+      function fallback() {
+        try {
+          var ta = document.createElement('textarea');
+          ta.value = text;
+          ta.setAttribute('readonly', '');
+          ta.style.cssText = 'position:absolute;left:-9999px';
+          document.body.appendChild(ta);
+          ta.select();
+          document.execCommand('copy');
+          document.body.removeChild(ta);
+          done();
+        } catch (e2) {
+          say('Could not copy here — email ' + TO + ' with the date and venue.', true);
+        }
+      }
+    });
+  }
+})();
+</script>
 
 </body>
 </html>
