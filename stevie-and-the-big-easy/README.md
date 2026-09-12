@@ -22,7 +22,9 @@ display, Barlow Condensed for labels, Karla for body.
 
 | Section | Where it came from |
 |---|---|
-| Promo artwork, video stills | the band's videos on youtube.com/@steveheavenstone |
+| Promo artwork (`promo-art.jpg`) | the May 22 flyer in Canva, cropped above the date and venue block; full flyer kept as `flyer-may22-full.jpg` |
+| Earlier promo artwork | `promo-art-2025-full.jpg`, from the band promo video |
+| Video stills | the band's videos on youtube.com/@steveheavenstone |
 | Bio | the band's own billing (Westside Blues & Jazz listing) and promo art |
 | Set list | the chart folders in the "Stevie and the Big Easy" Drive folder |
 | Photos | the press photos on steveheavenstone.com/media |
