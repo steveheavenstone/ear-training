@@ -11,6 +11,13 @@ Copy this folder into the Netlify site as `big-easy/` (or point a
 `bigeasy.` subdomain at it) and link it from the Bands page. Nothing in the
 page depends on where it is served from — all asset paths are relative.
 
+## The look
+
+Mardi Gras after dark: purple / green / gold, a fleur-de-lis drawn as an inline
+SVG symbol (reused for section marks and set-list bullets), and a French Quarter
+wrought-iron grille repeated along each section divider. Type is Ultra for
+display, Barlow Condensed for labels, Karla for body.
+
 ## Sources for the content
 
 | Section | Where it came from |
