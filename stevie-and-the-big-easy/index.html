@@ -203,9 +203,13 @@ section.band::before{
   gap:0 2rem;
 }
 .songs li{
-  padding:.55rem 0 .55rem 1.5rem;border-bottom:1px solid var(--rule-soft);
-  font-size:.98rem;
-  background:var(--fleur-bullet) no-repeat left .5rem/.7rem auto;
+  padding:.6rem 0 .6rem 1.5rem;border-bottom:1px solid var(--rule-soft);
+  background:var(--fleur-bullet) no-repeat left .68rem/.7rem auto;
+}
+.songs .tune{display:block;font-size:.98rem;line-height:1.3}
+.songs .by{
+  display:block;font-family:"Barlow Condensed","Arial Narrow",sans-serif;
+  text-transform:uppercase;letter-spacing:.1em;font-size:.78rem;color:var(--muted);
 }
 
 /* ---- photos ---- */
@@ -398,30 +402,30 @@ footer a{color:var(--muted)}
       <h2 class="display">A sample of the set list</h2>
     </div>
     <ul class="songs">
-      <li>Big Chief</li>
-      <li>Iko Iko</li>
-      <li>Mardi Gras Mambo</li>
-      <li>Go to the Mardi Gras</li>
-      <li>Here Comes the Big Parade</li>
-      <li>Working in the Coal Mine</li>
-      <li>Get Out My Life, Woman</li>
-      <li>People Say</li>
-      <li>Yellow Moon</li>
-      <li>Such a Night</li>
-      <li>Right Place, Wrong Time</li>
-      <li>Jambalaya</li>
-      <li>Spanish Moon</li>
-      <li>I Can't Stand the Rain</li>
-      <li>Cry to Me</li>
-      <li>It's All Over Now</li>
-      <li>Drown in My Own Tears</li>
-      <li>I Wish You Would</li>
-      <li>Smile in a While</li>
-      <li>Boneyard</li>
-      <li>Gator Fuzz</li>
-      <li>When You Get Back</li>
+      <li><span class="tune">Big Chief</span><span class="by">Professor Longhair</span></li>
+      <li><span class="tune">Iko Iko</span><span class="by">Dr. John</span></li>
+      <li><span class="tune">Mardi Gras Mambo</span><span class="by">The Hawketts</span></li>
+      <li><span class="tune">Go to the Mardi Gras</span><span class="by">Professor Longhair</span></li>
+      <li><span class="tune">Here Comes the Big Parade</span></li>
+      <li><span class="tune">Working in the Coal Mine</span><span class="by">Lee Dorsey</span></li>
+      <li><span class="tune">Get Out My Life, Woman</span><span class="by">Lee Dorsey</span></li>
+      <li><span class="tune">People Say</span><span class="by">The Meters</span></li>
+      <li><span class="tune">Yellow Moon</span><span class="by">The Neville Brothers</span></li>
+      <li><span class="tune">Such a Night</span><span class="by">Dr. John</span></li>
+      <li><span class="tune">Right Place, Wrong Time</span><span class="by">Dr. John</span></li>
+      <li><span class="tune">Jambalaya</span><span class="by">Hank Williams</span></li>
+      <li><span class="tune">Spanish Moon</span><span class="by">Little Feat</span></li>
+      <li><span class="tune">I Can't Stand the Rain</span><span class="by">Ann Peebles</span></li>
+      <li><span class="tune">Cry to Me</span><span class="by">Solomon Burke</span></li>
+      <li><span class="tune">It's All Over Now</span><span class="by">Bobby Womack</span></li>
+      <li><span class="tune">Drown in My Own Tears</span><span class="by">Ray Charles</span></li>
+      <li><span class="tune">I Wish You Would</span><span class="by">Billy Boy Arnold</span></li>
+      <li><span class="tune">Smile in a While</span></li>
+      <li><span class="tune">Boneyard</span></li>
+      <li><span class="tune">Gator Fuzz</span></li>
+      <li><span class="tune">When You Get Back</span></li>
     </ul>
-    <p class="small muted" style="margin-top:1.25rem">Full song list, charts and key sheets available on request — the band reads, so sit-ins and guest singers are easy to arrange.</p>
+    <p class="small muted" style="margin-top:1.25rem">Credits are the versions the band plays. Full song list, charts and key sheets available on request — the band reads, so sit-ins and guest singers are easy to arrange.</p>
   </section>
 
   <section class="wrap band" id="photos">
@@ -469,7 +473,7 @@ footer a{color:var(--muted)}
       <div>
         <h3>Typical inputs</h3>
         <ul>
-          <li>3 vocals (lead plus two backing)</li>
+          <li>3 vocals (lead, drums, keys)</li>
           <li>Guitar DI or mic, bass DI, keys DI (stereo)</li>
           <li>Drums: kick, snare, hats, two overheads</li>
           <li>Horns: one mic each — trumpet, trombone, sax</li>
