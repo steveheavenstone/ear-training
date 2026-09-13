@@ -47,10 +47,24 @@ Email notification). The free tier covers 100 submissions a month.
 
 ## The mailing list
 
-"Join the list" points at the existing Kit signup at music.steveheavenstone.com.
-For a band-only list, make a new form in Kit (Grow -> Landing Pages & Forms), tag
-subscribers something like `stevie-big-easy`, and swap that one URL in the
-booking sidebar.
+The gig-list box subscribes straight into Kit from the browser — Kit's v3
+subscribe endpoint allows cross-origin requests, so no server is involved.
+
+To switch it on, fill in the `KIT` object in the second `<script>` block:
+
+| Value | Where to find it |
+|---|---|
+| `formId` | the number in the Kit form's URL or embed code |
+| `apiKey` | Kit -> Settings -> Advanced -> API key. Use the **public** key — it is meant to sit in page source and can only add subscribers |
+| `tag` | optional numeric Kit tag id, e.g. to tag band subscribers separately |
+
+Leave either `formId` or `apiKey` blank and the email box hides itself and a
+"Join the list" button appears instead, pointing at the hosted Kit page at
+music.steveheavenstone.com. Same thing happens if the request fails or the page
+is somewhere that blocks it, such as inside an Artifact — the signup never dead
+ends.
+
+Kit sends its own confirmation email, so subscribers are double opted in.
 
 ## Still to confirm
 

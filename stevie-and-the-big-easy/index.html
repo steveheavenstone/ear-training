@@ -264,6 +264,18 @@ section.band::before{
   margin-top:1.75rem;padding-top:1.5rem;border-top:1px solid var(--rule-soft);
 }
 .list-block .btn{margin-top:.75rem}
+.list-form{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.85rem}
+.list-form input{
+  flex:1 1 9rem;min-width:0;font-family:inherit;font-size:.95rem;color:var(--text);
+  background:var(--surface-2);border:1px solid var(--rule-soft);border-radius:2px;padding:.5rem .6rem;
+}
+.list-form input::placeholder{color:var(--muted);opacity:.7}
+.list-form input:focus-visible{outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold)}
+.list-form .btn{margin-top:0;cursor:pointer;background:none;flex:none}
+.sr-only{
+  position:absolute;width:1px;height:1px;padding:0;margin:-1px;
+  overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap;border:0;
+}
 .booking .email{
   font-family:"Ultra",Georgia,serif;font-size:clamp(1.1rem,.7rem + 1.9vw,2rem);
   line-height:1.15;word-break:break-word;color:var(--gold);text-decoration:none;
@@ -596,7 +608,13 @@ footer a{color:var(--muted)}
           <div class="list-block">
             <h3>The gig list</h3>
             <p class="small">Where the band is playing next, a couple of emails a month. No spam, ever.</p>
-            <a class="btn" href="https://music.steveheavenstone.com">Join the list</a>
+            <form class="list-form" id="list-form" novalidate>
+              <label class="sr-only" for="list-email">Your email</label>
+              <input type="email" id="list-email" name="email" placeholder="you@email.com" autocomplete="email">
+              <button class="btn" type="submit">Join</button>
+            </form>
+            <p class="form-status small" id="list-status" role="status" aria-live="polite"></p>
+            <a class="btn" id="list-fallback" href="https://music.steveheavenstone.com" hidden>Join the list</a>
           </div>
 
           <h3 class="side-h">Follow</h3>
@@ -751,6 +769,79 @@ footer a{color:var(--muted)}
       }
     });
   }
+})();
+</script>
+
+
+<script>
+/* The gig list — subscribes straight into Kit.
+   Fill both values in and the signup box goes live; leave either blank and it
+   falls back to a link to the hosted Kit page.
+     formId — the number in the form's Kit URL or embed code
+     apiKey — Kit -> Settings -> Advanced -> API key (the PUBLIC one, safe here)
+     tag    — optional numeric Kit tag id to apply, or leave blank            */
+(function () {
+  var KIT = {
+    formId: '',
+    apiKey: '',
+    tag: '',
+    endpoint: 'https://api.kit.com/v3/forms/'
+  };
+  var HOSTED = 'https://music.steveheavenstone.com';
+
+  var form = document.getElementById('list-form');
+  var status = document.getElementById('list-status');
+  var fallback = document.getElementById('list-fallback');
+  if (!form) return;
+
+  function say(msg, warn) {
+    if (!status) return;
+    status.textContent = msg;
+    status.className = 'form-status small' + (warn ? ' warn' : '');
+  }
+
+  function useLink() {
+    form.hidden = true;
+    if (fallback) fallback.hidden = false;
+  }
+
+  if (!KIT.formId || !KIT.apiKey) { useLink(); return; }
+
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var input = document.getElementById('list-email');
+    var email = input && input.value ? input.value.trim() : '';
+    if (!email || email.indexOf('@') < 1 || email.indexOf('.') < 0) {
+      say('Pop in an email address first.', true);
+      if (input) input.focus();
+      return;
+    }
+    var btn = form.querySelector('button[type="submit"]');
+    if (btn) btn.disabled = true;
+    say('Signing you up…');
+
+    var payload = { api_key: KIT.apiKey, email: email };
+    if (KIT.tag) payload.tags = [KIT.tag];
+
+    fetch(KIT.endpoint + encodeURIComponent(KIT.formId) + '/subscribe', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(payload)
+    }).then(function (res) {
+      if (btn) btn.disabled = false;
+      if (res.ok) {
+        form.reset();
+        say('You are on the list — check your inbox to confirm.');
+      } else {
+        say('That did not take. Sign up at ' + HOSTED + ' instead.', true);
+        useLink();
+      }
+    }).catch(function () {
+      if (btn) btn.disabled = false;
+      say('Cannot sign up from here — use the button below.', true);
+      useLink();
+    });
+  });
 })();
 </script>
 
