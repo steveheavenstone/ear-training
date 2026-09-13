@@ -31,19 +31,26 @@ display, Barlow Condensed for labels, Karla for body.
 
 ## The booking form
 
-The "Tell us about the date" form has no backend: it gathers the fields and
-either hands them to the visitor's email app (`mailto:`) or copies them to the
-clipboard. That works anywhere the page is hosted, including inside an Artifact.
+The "Tell us about the date" form is wired for **Netlify Forms**: the markup
+carries `name="booking"`, `data-netlify="true"`, the hidden `form-name` field and
+a `bot-field` honeypot, so Netlify picks it up at deploy time. The script posts
+the fields plus a readable `summary` field, then resets and confirms.
 
-On Netlify it can become a real form instead — add `data-netlify="true"` and a
-`name` to the `<form>`, and submissions land in the Netlify dashboard with email
-notification. Ask and I'll wire it up.
+It only posts on the real site — the host must be `steveheavenstone.com`,
+a subdomain of it, or `*.netlify.app` (see `NETLIFY_HOSTS` in the script).
+Anywhere else — a local file, an Artifact, a preview — the same button composes
+the email in the visitor's mail app instead, so the form is never a dead end.
+
+After the first deploy: Netlify -> Forms -> confirm **booking** is listed, then
+add a notification so submissions reach an inbox (Forms -> Form notifications ->
+Email notification). The free tier covers 100 submissions a month.
 
 ## The mailing list
 
-"Join the list" currently points at the existing Kit signup at
-music.steveheavenstone.com. If a band-specific list gets made, swap that one URL
-in the booking sidebar.
+"Join the list" points at the existing Kit signup at music.steveheavenstone.com.
+For a band-only list, make a new form in Kit (Grow -> Landing Pages & Forms), tag
+subscribers something like `stevie-big-easy`, and swap that one URL in the
+booking sidebar.
 
 ## Still to confirm
 

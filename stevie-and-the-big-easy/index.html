@@ -251,6 +251,7 @@ section.band::before{
 .field input:focus-visible,.field select:focus-visible,.field textarea:focus-visible{
   outline:2px solid var(--gold);outline-offset:1px;border-color:var(--gold);
 }
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 .form-actions{grid-column:1/-1;display:flex;flex-wrap:wrap;gap:.75rem;margin-top:.35rem}
 .form-actions .btn{font-family:"Barlow Condensed","Arial Narrow",sans-serif;cursor:pointer;background:none}
 .form-actions .btn.solid{background:var(--gold)}
@@ -528,7 +529,9 @@ footer a{color:var(--muted)}
       <p class="small muted" style="margin-bottom:1.75rem">Fill this in and it writes the email for you — or just write to <a href="mailto:steveheavenstone@gmail.com?subject=Booking%20Stevie%20and%20the%20Big%20Easy">steveheavenstone@gmail.com</a> directly.</p>
 
       <div class="booking-grid">
-        <form class="date-form" id="date-form" novalidate>
+        <form class="date-form" id="date-form" name="booking" method="POST" data-netlify="true" netlify-honeypot="bot-field" novalidate>
+          <input type="hidden" name="form-name" value="booking">
+          <p class="hp" aria-hidden="true"><label>Leave this empty <input name="bot-field" tabindex="-1" autocomplete="off"></label></p>
           <div class="field">
             <label for="gig-date">Date</label>
             <input type="date" id="gig-date" name="date">
@@ -579,7 +582,7 @@ footer a{color:var(--muted)}
             <textarea id="gig-notes" name="notes" rows="3" placeholder="Stage size, PA, parking, a tune you want in the set"></textarea>
           </div>
           <div class="form-actions">
-            <button class="btn solid" type="submit">Write the email</button>
+            <button class="btn solid" type="submit">Send it</button>
             <button class="btn" type="button" id="copy-details">Copy the details</button>
           </div>
           <p class="form-status small" id="form-status" role="status" aria-live="polite"></p>
@@ -623,6 +626,16 @@ footer a{color:var(--muted)}
   var status = document.getElementById('form-status');
   var copyBtn = document.getElementById('copy-details');
   var TO = 'steveheavenstone@gmail.com';
+
+  // Hosts where Netlify collects the form. Anywhere else (a local file, an
+  // Artifact, a preview) the form writes the email instead.
+  var NETLIFY_HOSTS = ['steveheavenstone.com', 'netlify.app'];
+  function onNetlify() {
+    var h = location.hostname || '';
+    return location.protocol.indexOf('http') === 0 && NETLIFY_HOSTS.some(function (d) {
+      return h === d || h.slice(-(d.length + 1)) === '.' + d;
+    });
+  }
 
   function val(id) {
     var el = document.getElementById(id);
@@ -668,14 +681,46 @@ footer a{color:var(--muted)}
     status.className = 'form-status small' + (warn ? ' warn' : '');
   }
 
+  function writeEmail(note) {
+    var href = 'mailto:' + TO + '?subject=' + encodeURIComponent(subject()) +
+               '&body=' + encodeURIComponent('Hi Steve,\n\n' + details() + '\n\nThanks!');
+    window.location.href = href;
+    say(note || ('Opening your email app. If nothing happens, hit "Copy the details" and send them to ' + TO + '.'));
+  }
+
+  function post() {
+    var data = new FormData(form);
+    var body = [];
+    data.forEach(function (v, k) {
+      body.push(encodeURIComponent(k) + '=' + encodeURIComponent(v));
+    });
+    // keep the readable summary alongside the raw fields
+    body.push('summary=' + encodeURIComponent(details()));
+    var btn = form.querySelector('button[type="submit"]');
+    if (btn) btn.disabled = true;
+    say('Sending…');
+    fetch(form.getAttribute('action') || location.pathname, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.join('&')
+    }).then(function (res) {
+      if (btn) btn.disabled = false;
+      if (res.ok) {
+        form.reset();
+        say('Sent — thanks. Steve will come back to you with a quote and a hold.');
+      } else {
+        writeEmail('That did not go through. Opening your email app instead.');
+      }
+    }).catch(function () {
+      if (btn) btn.disabled = false;
+      writeEmail('That did not go through. Opening your email app instead.');
+    });
+  }
+
   form.addEventListener('submit', function (e) {
     e.preventDefault();
-    var body = details();
-    if (!body) { say('Add a date or a venue first.', true); return; }
-    var href = 'mailto:' + TO + '?subject=' + encodeURIComponent(subject()) +
-               '&body=' + encodeURIComponent('Hi Steve,\n\n' + body + '\n\nThanks!');
-    window.location.href = href;
-    say('Opening your email app. If nothing happens, hit "Copy the details" and send them to ' + TO + '.');
+    if (!details()) { say('Add a date or a venue first.', true); return; }
+    if (onNetlify()) { post(); } else { writeEmail(); }
   });
 
   if (copyBtn) {
